@@ -1,1 +1,1 @@
-
+to Design and implement a Multi-Process Command Pipeline System that accepts two commands, runs them as separate stages, and passes the output of the first stage as the input of the second through a pipe. The system must display the data at each stage so users can see how inter-process communication works.
