@@ -1,1 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multi-Process Command Pipeline System</title>
 
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 25px;
+    background: #0b1120;
+    color: #e5e7eb;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 950px;
+    margin: 20px auto;
+    background: #111827;
+    padding: 30px;
+    border-radius: 14px;
+    border: 1px solid #293449;
+}
+
+h1 {
+    text-align: center;
+    color: #60a5fa;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #9ca3af;
+    margin-bottom: 30px;
+}
+
+.process {
+    background: #1f2937;
+    padding: 20px;
+    margin: 18px 0;
+    border-radius: 10px;
+    border: 1px solid #374151;
+}
+
+h2 {
+    color: #93c5fd;
+    font-size: 19px;
+    margin-top: 0;
+}
+
+label {
+    display: block;
+    margin: 12px 0 8px;
+    color: #d1d5db;
+}
+
+input {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #4b5563;
+    border-radius: 7px;
+    background: #030712;
+    color: #f9fafb;
+    font-size: 15px;
+    outline: none;
+}
+
+input:focus {
+    border-color: #60a5fa;
+}
+
+.examples {
+    color: #9ca3af;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+.pipe {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 25px 0;
+    color: #34d399;
+    font-weight: bold;
+}
+
+.pipe-line {
+    height: 2px;
+    flex: 1;
+    max-width: 120px;
+    background: #34d399;
+}
+
+.pipe-label {
+    padding: 12px 20px;
+    border: 1px solid #34d399;
+    border-radius: 8px;
+    background: #102b2a;
+    text-align: center;
+}
+
+.buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+button {
+    flex: 1;
+    padding: 13px;
+    border: none;
+    border-radius: 7px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.run {
+    background: #2563eb;
+    color: white;
+}
+
+.run:hover {
+    background: #1d4ed8;
+}
+
+.clear {
+    background: #374151;
+    color: white;
+}
+
+.clear:hover {
+    background: #4b5563;
+}
+
+.output {
+    margin-top: 25px;
+    background: #030712;
+    border: 1px solid #374151;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.output h2 {
+    color: #34d399;
+}
+
+pre {
+    color: #d1fae5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-family: Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 25px;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 18px;
+    }
+
+    .buttons {
+        flex-direction: column;
+    }
+
+    .pipe-line {
+        max-width: 35px;
+    }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>Multi-Process Command Pipeline System</h1>
+    <p class="subtitle">
+        Execute a command pipeline and view the output passed between processes
+    </p>
+
+    <div class="process">
+        <h2>Process 1</h2>
+
+        <label for="command1">Enter the first command</label>
+        <input id="command1" value="ls" placeholder="Example: ls">
+
+        <div class="examples">
+            Examples: ls, ls -l, pwd, echo hello, cat notes.txt
+        </div>
+    </div>
+
+    <div class="pipe">
+        <span class="pipe-line"></span>
+        <div class="pipe-label">
+            <span>PIPE CONNECTION</span>
+            <div style="font-size:13px; font-weight:normal; margin-top:5px;">
+                Output → Input
+            </div>
+        </div>
+        <span class="pipe-line"></span>
+    </div>
+
+    <div class="process">
+        <h2>Process 2</h2>
+
+        <label for="command2">Enter the second command</label>
+        <input id="command2" value="grep .c" placeholder="Example: grep .c">
+
+        <div class="examples">
+            Examples: grep .c, wc -l, wc -w, sort, head, tail
+        </div>
+    </div>
+
+    <div class="buttons">
+        <button class="run" onclick="runPipeline()">Run Pipeline</button>
+        <button class="clear" onclick="clearOutput()">Clear Output</button>
+    </div>
+
+    <div class="output">
+        <h2>Pipeline Output</h2>
+        <pre id="result">Enter commands and click Run Pipeline.</pre>
+    </div>
+
+</div>
+
+<script>
+const files = [
+    "notes.txt",
+    "names.txt",
+    "main.c",
+    "pipeline.c",
+    "report.txt"
+];
+
+const fileContents = {
+    "notes.txt": "Operating Systems\nLinux commands\nPipe communication",
+    "names.txt": "Anu\nRavi\nPriya\nKiran",
+    "main.c": "#include <stdio.h>\nint main() {\n    printf(\"Hello\");\n    return 0;\n}",
+    "pipeline.c": "#include <unistd.h>\nint main() {\n    pipe(fd);\n    return 0;\n}",
+    "report.txt": "Project report\nMulti-process pipeline\nCompleted"
+};
+
+function getOutput(command) {
+    command = command.trim();
+
+    if (command === "") {
+        return "";
+    }
+
+    const parts = command.split(/\s+/);
+    const cmd = parts[0];
+    const args = parts.slice(1);
+
+    if (cmd === "ls") {
+        if (args.includes("-l")) {
+            return [
+                "total 5",
+                "-rw-r--r-- 1 user user 45 Oct 16 notes.txt",
+                "-rw-r--r-- 1 user user 32 Oct 16 names.txt",
+                "-rw-r--r-- 1 user user 85 Oct 16 main.c",
+                "-rw-r--r-- 1 user user 65 Oct 16 pipeline.c",
+                "-rw-r--r-- 1 user user 50 Oct 16 report.txt"
+            ].join("\n");
+        }
+
+        return files.join("\n");
+    }
+
+    if (cmd === "pwd") {
+        return "/home/student/project";
+    }
+
+    if (cmd === "whoami") {
+        return "student";
+    }
+
+    if (cmd === "date") {
+        return "Fri Oct 16 10:00:00 IST 2026";
+    }
+
+    if (cmd === "echo") {
+        return args.join(" ");
+    }
+
+    if (cmd === "cat") {
+        if (args.length === 0) {
+            return "cat: missing file operand";
+        }
+
+        return args.map(name => {
+            return Object.prototype.hasOwnProperty.call(fileContents, name)
+                ? fileContents[name]
+                : "cat: " + name + ": No such file";
+        }).join("\n");
+    }
+
+    return "Command not supported in this example: " + command;
+}
+
+function runSecondCommand(command, input) {
+    command = command.trim();
+
+    if (command === "") {
+        return "Please enter the second command.";
+    }
+
+    const parts = command.split(/\s+/);
+    const cmd = parts[0];
+    const args = parts.slice(1);
+
+    if (cmd === "cat") {
+        return input;
+    }
+
+    if (cmd === "grep") {
+        if (args.length === 0) {
+            return "grep: missing search pattern";
+        }
+
+        let regex;
+
+        try {
+            regex = new RegExp(args[0]);
+        } catch (error) {
+            return "grep: invalid pattern";
+        }
+
+        const matches = input
+            .split("\n")
+            .filter(line => regex.test(line));
+
+        return matches.length ? matches.join("\n") : "(no matches)";
+    }
+
+    if (cmd === "wc") {
+        const lines = input === "" ? [] : input.split("\n");
+        const words = input.trim() === ""
+            ? []
+            : input.trim().split(/\s+/);
+
+        if (args.includes("-l")) {
+            return String(lines.length);
+        }
+
+        if (args.includes("-w")) {
+            return String(words.length);
+        }
+
+        if (args.includes("-c")) {
+            return String(input.length);
+        }
+
+        return lines.length + " " + words.length + " " + input.length;
+    }
+
+    if (cmd === "sort") {
+        const lines = input === "" ? [] : input.split("\n");
+        return lines.sort((a, b) => a.localeCompare(b)).join("\n");
+    }
+
+    if (cmd === "head" || cmd === "tail") {
+        let count = 10;
+        const index = args.indexOf("-n");
+
+        if (index !== -1 && args[index + 1]) {
+            count = parseInt(args[index + 1], 10);
+        } else if (args[0] && /^-\d+$/.test(args[0])) {
+            count = parseInt(args[0].slice(1), 10);
+        }
+
+        if (Number.isNaN(count) || count < 0) {
+            return cmd + ": invalid number of lines";
+        }
+
+        const lines = input === "" ? [] : input.split("\n");
+
+        return (cmd === "head"
+            ? lines.slice(0, count)
+            : lines.slice(Math.max(0, lines.length - count))
+        ).join("\n");
+    }
+
+    if (cmd === "uniq") {
+        const lines = input.split("\n");
+        return lines.filter((line, index) =>
+            index === 0 || line !== lines[index - 1]
+        ).join("\n");
+    }
+
+    if (cmd === "tr" && args[0] === "a-z" && args[1] === "A-Z") {
+        return input.toUpperCase();
+    }
+
+    if (cmd === "rev") {
+        return input.split("\n")
+            .map(line => line.split("").reverse().join(""))
+            .join("\n");
+    }
+
+    if (cmd === "echo") {
+        return args.join(" ");
+    }
+
+    return "Command not supported in this example: " + command;
+}
+
+function runPipeline() {
+    const command1 = document.getElementById("command1").value.trim();
+    const command2 = document.getElementById("command2").value.trim();
+    const result = document.getElementById("result");
+
+    if (!command1 || !command2) {
+        result.textContent = "Please enter both commands.";
+        return;
+    }
+
+    const firstOutput = getOutput(command1);
+    const finalOutput = runSecondCommand(command2, firstOutput);
+
+    result.textContent =
+        "Pipeline completed.\n\n" +
+        "Process 1: " + command1 + "\n\n" +
+        "Output passed through pipe:\n" +
+        (firstOutput || "(empty output)") + "\n\n" +
+        "Process 2: " + command2 + "\n\n" +
+        "Final Output:\n" +
+        (finalOutput || "(empty output)");
+}
+
+function clearOutput() {
+    document.getElementById("result").textContent =
+        "Enter commands and click Run Pipeline.";
+}
+
+runPipeline();
+</script>
+</body>
+</html>
