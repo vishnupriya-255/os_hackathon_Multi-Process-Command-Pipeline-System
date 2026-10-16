@@ -1,1 +1,46 @@
-
+moukthika@Lakshmis:~$ nano multi_processes.c
+moukthika@Lakshmis:~$ gcc multi_processes.c
+moukthika@Lakshmis:~$ ./a.out
+Enter first command: ls
+Enter second command: grep .c
+allsignals1.c
+allsignals2.c
+exec1.c
+exec2.c
+exec3.c
+fifo1.c
+fork4.c
+high_concurency.c
+malloc.c
+multi_process
+multi_processes.c
+mvex.c
+namedpipe1.c
+open1.c
+open1.c.save
+open3.c
+parcticalquestion5zombie.c
+pipe1.c
+pipe2.c
+pipeex2.c
+pipex1.c
+pipex1.cz
+pracques-1.c
+pracques-2.c
+pracques-3.c
+practicalquestion4.c
+practicalquestion4partb.c
+practicalquestion5.c
+practicalquestion5partb.c
+prod_cons_sem.c
+prodcons.c
+prodcons.c.save
+readwr.c
+sender.c
+shm1.c
+sigint.c
+skillques-1.c
+skillques-2.c
+task5.c
+taskquestion1.c
+moukthika@Lakshmis:~$
